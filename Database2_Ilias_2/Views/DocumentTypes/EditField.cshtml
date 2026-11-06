@@ -1,0 +1,20 @@
+@model FieldFormModel
+@{
+    ViewData["Title"] = "Редактирование поля";
+}
+
+<h1 class="h3 mb-3">Редактирование поля</h1>
+
+<div class="alert alert-info col-lg-8">
+    Если по этому полю уже есть значения в документах, тип данных изменить нельзя.
+</div>
+
+<form asp-action="EditField" method="post" class="col-lg-8">
+    <partial name="_FieldForm" model="Model" />
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a asp-action="Details" asp-route-id="@Model.DocumentTypeId" class="btn btn-link">Отмена</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,25 @@
+@model List<DocumentType>
+@{
+    ViewData["Title"] = "Новый документ";
+}
+
+<h1 class="h3 mb-3">Новый документ: выберите тип</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">
+        Активных типов документов нет. Администратор может создать их в разделе «Типы документов».
+    </div>
+}
+
+<div class="list-group col-md-6 mb-3">
+    @foreach (var t in Model)
+    {
+        <a asp-action="Create" asp-route-typeId="@t.Id" class="list-group-item list-group-item-action">
+            <div class="fw-bold">@t.Name</div>
+            <div class="small text-muted">@t.Description</div>
+        </a>
+    }
+</div>
+
+<a asp-action="Index" class="btn btn-link">Назад к списку</a>

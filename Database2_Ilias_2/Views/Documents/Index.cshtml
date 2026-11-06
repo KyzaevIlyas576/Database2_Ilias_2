@@ -1,0 +1,90 @@
+@model DocumentListViewModel
+@{
+    ViewData["Title"] = "Документы";
+    var canEdit = User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Editor);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Документы</h1>
+    @if (canEdit)
+    {
+        <a asp-action="ChooseType" class="btn btn-primary">Новый документ</a>
+    }
+</div>
+
+@if (TempData["Message"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input name="q" value="@Model.Query" class="form-control" placeholder="Поиск по заголовку и описанию" />
+    </div>
+    <div class="col-md-3">
+        <select name="typeId" class="form-select">
+            <option value="">Все типы</option>
+            @foreach (var t in Model.Types)
+            {
+                <option value="@t.Id" selected="@(Model.TypeId == t.Id)">@t.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">Любой статус</option>
+            @foreach (var s in Enum.GetValues<DocumentStatus>())
+            {
+                <option value="@s" selected="@(Model.Status == s)">@s.Ru()</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2 d-grid">
+        <button type="submit" class="btn btn-outline-primary">Найти</button>
+    </div>
+</form>
+
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Заголовок</th>
+            <th>Тип</th>
+            <th>Статус</th>
+            <th>Автор</th>
+            <th>Создан</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model.Items)
+        {
+            <tr>
+                <td><a asp-action="Details" asp-route-id="@d.Id">@d.Title</a></td>
+                <td>@d.TypeName</td>
+                <td>@d.Status.Ru()</td>
+                <td>@d.AuthorEmail</td>
+                <td>@d.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+            </tr>
+        }
+        @if (!Model.Items.Any())
+        {
+            <tr><td colspan="5" class="text-muted">Документов не найдено.</td></tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.Page - 1)"
+                   asp-route-q="@Model.Query" asp-route-typeId="@Model.TypeId" asp-route-status="@Model.Status">Назад</a>
+            </li>
+            <li class="page-item disabled"><span class="page-link">@Model.Page из @Model.TotalPages</span></li>
+            <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(Model.Page + 1)"
+                   asp-route-q="@Model.Query" asp-route-typeId="@Model.TypeId" asp-route-status="@Model.Status">Вперёд</a>
+            </li>
+        </ul>
+    </nav>
+}

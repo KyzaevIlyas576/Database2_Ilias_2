@@ -1,0 +1,46 @@
+@model FieldFormModel
+
+@* Только поля ввода: тег <form> и кнопку отправки добавляет страница, которая подключает эту часть *@
+
+<input type="hidden" asp-for="Id" />
+<input type="hidden" asp-for="DocumentTypeId" />
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Label" class="form-label"></label>
+        <input asp-for="Label" class="form-control" placeholder="например, Номер договора" />
+        <span asp-validation-for="Label" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" placeholder="например, contract_number" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="DataType" class="form-label"></label>
+        <select asp-for="DataType" class="form-select"
+                asp-items="@(Enum.GetValues<FieldDataType>().Select(v => new SelectListItem(v.Ru(), v.ToString())))"></select>
+        <span asp-validation-for="DataType" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="SortOrder" class="form-label"></label>
+        <input asp-for="SortOrder" class="form-control" />
+        <span asp-validation-for="SortOrder" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3 d-flex align-items-end">
+        <div class="form-check">
+            <input asp-for="IsRequired" class="form-check-input" />
+            <label asp-for="IsRequired" class="form-check-label"></label>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Options" class="form-label"></label>
+    <input asp-for="Options" class="form-control" placeholder="только для типа «Выбор из списка»: Да;Нет;Не знаю" />
+    <span asp-validation-for="Options" class="text-danger"></span>
+</div>

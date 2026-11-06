@@ -1,0 +1,97 @@
+@model DocumentFormModel
+@{
+    var isNew = Model.Id == 0;
+    ViewData["Title"] = isNew ? "Новый документ" : "Редактирование документа";
+}
+
+<h1 class="h3 mb-1">@ViewData["Title"]</h1>
+<div class="text-muted mb-3">Тип: @Model.TypeName</div>
+
+<form asp-action="@(isNew ? "Create" : "Edit")" method="post" class="col-lg-8">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="DocumentTypeId" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Summary" class="form-label"></label>
+        <textarea asp-for="Summary" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Summary" class="text-danger"></span>
+    </div>
+
+    <div class="mb-4">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" class="form-select"
+                asp-items="@(Enum.GetValues<DocumentStatus>().Select(s => new SelectListItem(s.Ru(), s.ToString())))"></select>
+    </div>
+
+    @* Поля типа документа: форма строится по описанию из базы данных *@
+    @if (Model.Fields.Count > 0)
+    {
+        <h2 class="h5 mb-3">Данные документа</h2>
+    }
+
+    @for (var i = 0; i < Model.Fields.Count; i++)
+    {
+        var f = Model.Fields[i];
+
+        <div class="mb-3">
+            <input type="hidden" asp-for="Fields[i].FieldDefinitionId" />
+            <label asp-for="Fields[i].Value" class="form-label">@f.Label@(f.IsRequired ? " *" : "")</label>
+
+            @switch (f.DataType)
+            {
+                case FieldDataType.Number:
+                    <input asp-for="Fields[i].Value" type="number" step="any" class="form-control" />
+                    break;
+
+                case FieldDataType.Date:
+                    <input asp-for="Fields[i].Value" type="date" class="form-control" />
+                    break;
+
+                case FieldDataType.Boolean:
+                    <select asp-for="Fields[i].Value" class="form-select">
+                        <option value="">—</option>
+                        <option value="true">Да</option>
+                        <option value="false">Нет</option>
+                    </select>
+                    break;
+
+                case FieldDataType.List:
+                    <select asp-for="Fields[i].Value" class="form-select">
+                        <option value="">— выберите —</option>
+                        @foreach (var option in f.Options)
+                        {
+                            <option value="@option">@option</option>
+                        }
+                    </select>
+                    break;
+
+                default:
+                    <input asp-for="Fields[i].Value" class="form-control" />
+                    break;
+            }
+
+            <span asp-validation-for="Fields[i].Value" class="text-danger"></span>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    @if (isNew)
+    {
+        <a asp-action="ChooseType" class="btn btn-link">Отмена</a>
+    }
+    else
+    {
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-link">Отмена</a>
+    }
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
